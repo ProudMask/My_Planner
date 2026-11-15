@@ -1,21 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Daily/Weekly/Monthly Planner</title>
-</head>
-<body>
-    <h1>Daily/Weekly/Monthly Planner</h1>
-    <form method="post" action="{{ url_for('index') }}">
-        <label for="date">Select a date:</label>
-        <input type="date" name="date" value="{{ selected_date.strftime('%Y-%m-%d') }}">
-        <input type="submit" value="Go">
-    </form>
-    <h2>Selected Date: {{ selected_date.strftime('%Y-%m-%d') }}</h2>
-    <ul>
-    {% for day in month_days %}
-        <li>{{ day.strftime('%Y-%m-%d') }}</li>
-    {% endfor %}
-    </ul>
-</body>
-</html>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>My Planner</title>
+<style>body{font:16px system-ui;background:#f5f3ee;color:#252b2a;max-width:850px;margin:40px auto;padding:0 20px}section{background:white;padding:24px;border-radius:14px;margin:20px 0}h1{font-size:2.2rem}form{display:flex;gap:10px;flex-wrap:wrap;align-items:center}input,select,button{font:inherit;padding:9px;border:1px solid #aaa;border-radius:6px}button{background:#244a43;color:white;cursor:pointer}li{margin:16px 0}.done{text-decoration:line-through;color:#666}.calendar{display:flex;gap:8px;flex-wrap:wrap}.calendar a{padding:8px;color:#244a43}small{color:#5d6663}</style></head>
+<body><h1>My Planner</h1><p>A clear view of your day, week, and month.</p>
+<section><form method="get" action="{{ url_for('index') }}"><label for="date">Selected date</label><input id="date" name="date" type="date" value="{{ selected.isoformat() }}" min="1900-01-01" max="2100-12-31" required><label for="view">View</label><select id="view" name="view">{% for option in ['day','week','month'] %}<option value="{{ option }}" {% if view == option %}selected{% endif %}>{{ option|capitalize }}</option>{% endfor %}</select><button>Show tasks</button></form></section>
+<section><h2>Add a task for {{ selected.isoformat() }}</h2><form method="post" action="{{ url_for('add_task') }}"><input type="hidden" name="csrf_token" value="{{ session.csrf_token }}"><input type="hidden" name="date" value="{{ selected.isoformat() }}"><input type="hidden" name="view" value="{{ view }}"><label for="title">Task</label><input id="title" name="title" maxlength="200" required><button>Add task</button></form></section>
+<section><h2>{{ start.isoformat() }} to {{ end.isoformat() }}</h2><p>{{ completed }} of {{ tasks|length }} tasks completed</p><ul>{% for task in tasks %}<li><span class="{% if task.completed %}done{% endif %}">{{ task.title }}</span> <small>{{ task.due_date }}</small><form method="post" action="{{ url_for('complete_task', task_id=task.id) }}"><input type="hidden" name="csrf_token" value="{{ session.csrf_token }}"><input type="hidden" name="date" value="{{ selected.isoformat() }}"><input type="hidden" name="view" value="{{ view }}"><input type="hidden" name="completed" value="{{ 0 if task.completed else 1 }}"><button>{{ 'Mark incomplete' if task.completed else 'Mark complete' }}</button></form></li>{% else %}<li>No tasks in this period.</li>{% endfor %}</ul></section>
+<section><h2>{{ selected.strftime('%B %Y') }}</h2><nav class="calendar" aria-label="Days in selected month">{% for day in days %}<a href="{{ url_for('index', date=day.isoformat(), view='day') }}" {% if day == selected %}aria-current="date"{% endif %}>{{ day.day }}</a>{% endfor %}</nav></section>
+<small>Local single-user planner. Tasks are saved on this computer.</small></body></html>
